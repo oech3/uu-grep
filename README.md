@@ -30,6 +30,10 @@ cargo build --release
 cargo test
 ```
 
+## Pre-commit hooks
+
+This project uses [pre-commit](https://pre-commit.com); run `pre-commit install` to enable the git hooks.
+
 ## Known Issues
 
 * Does not take `LANG`, etc., into account for handling file encodings (non-UTF8 matches are treated as binary)
