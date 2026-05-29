@@ -440,6 +440,17 @@ fn files_with_and_without_matches() {
         .fails_with_code(1)
         .stdout_is("hit\nmiss\n");
 
+    // -L with a pattern that DOES match in one file: the matching file is
+    // excluded from the listing, so only the non-matching file is printed.
+    // This exercises the early-return in `session_handle_match` taken when
+    // `files_without_match` is set and a match is found (src/searcher.rs).
+    let (scene, mut c) = ucmd();
+    scene.fixtures.write("hit", "yes\n");
+    scene.fixtures.write("miss", "no\n");
+    c.args(&["-L", "yes", "hit", "miss"])
+        .succeeds()
+        .stdout_is("miss\n");
+
     // -l early-exits after the first match. Verify it doesn't print twice.
     // when the file has many.
     let (scene, mut c) = ucmd();
