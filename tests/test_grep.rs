@@ -1061,6 +1061,30 @@ fn recursive_skips_fifos_by_default() {
         .stdout_does_not_contain("fifo");
 }
 
+#[cfg(unix)]
+#[test]
+fn device_skip_on_explicit_special_file_arg() {
+    use std::process::Command;
+
+    // A special file (FIFO) named *directly* as an argument, not via recursion.
+    // With `-D skip` it must be dropped without reading (reading would block
+    // forever, so the test returning at all proves it was skipped). This covers
+    // the top-level special-file branch in `process_path` and `is_special_file`
+    // (src/searcher.rs), distinct from the recursive FIFO path.
+    let (scene, _) = ucmd();
+    let fifo_path = scene.fixtures.plus("fifo");
+    let status = Command::new("mkfifo")
+        .arg(&fifo_path)
+        .status()
+        .expect("mkfifo failed");
+    assert!(status.success(), "could not create FIFO");
+
+    let mut c = scene.cmd(env!("CARGO_BIN_EXE_grep"));
+    c.args(&["-D", "skip", "grep", "fifo"])
+        .fails_with_code(1)
+        .no_output();
+}
+
 #[test]
 fn nonexistent_file_is_error() {
     let (_s, mut c) = ucmd();
