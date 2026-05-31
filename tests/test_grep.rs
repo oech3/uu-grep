@@ -1272,3 +1272,70 @@ fn repeated_options_are_accepted() {
         .succeeds()
         .stdout_only("a\nb\n");
 }
+
+#[test]
+fn literal_buffer_path_prefixes_and_max() {
+    // Plain literals are served by the buffer-at-a-time engine; the line/byte
+    // prefixes and -m must still be byte-identical to the line-at-a-time path.
+
+    // -n and -b together: "lineno:byteoffset:line".
+    let (_s, mut c) = ucmd();
+    c.args(&["-nb", "foo"])
+        .pipe_in("foo\nbar\nfoobar\n")
+        .succeeds()
+        .stdout_only("1:0:foo\n3:8:foobar\n");
+
+    // A line matched more than once is still emitted once.
+    let (_s, mut c) = ucmd();
+    c.args(&["-c", "oo"])
+        .pipe_in("oooo\nbar\noo\n")
+        .succeeds()
+        .stdout_only("2\n");
+
+    // -m caps printed matches.
+    let (_s, mut c) = ucmd();
+    c.args(&["-m", "2", "x"])
+        .pipe_in("x\ny\nx\nz\nx\n")
+        .succeeds()
+        .stdout_only("x\nx\n");
+
+    // Final line without a trailing terminator still matches and is printed
+    // with an added newline.
+    let (_s, mut c) = ucmd();
+    c.args(&["foo"])
+        .pipe_in("bar\nfoo")
+        .succeeds()
+        .stdout_only("foo\n");
+}
+
+#[test]
+fn literal_buffer_path_spans_many_chunks() {
+    // Build an input far larger than the read buffer so the buffer-at-a-time
+    // engine crosses several chunk boundaries, and check that line numbers and
+    // counts stay correct across them.
+    let mut input = String::new();
+    let mut expected_n = String::new();
+    let mut count = 0u32;
+    for i in 1..=100_000u32 {
+        if i % 7 == 0 {
+            input.push_str("needle\n");
+            expected_n.push_str(&format!("{i}:needle\n"));
+            count += 1;
+        } else {
+            input.push_str("some filler text\n");
+        }
+    }
+    assert!(input.len() > 512 * 1024, "input must exceed several chunks");
+
+    let (_s, mut c) = ucmd();
+    c.args(&["-c", "needle"])
+        .pipe_in(input.clone())
+        .succeeds()
+        .stdout_only(format!("{count}\n"));
+
+    let (_s, mut c) = ucmd();
+    c.args(&["-n", "needle"])
+        .pipe_in(input)
+        .succeeds()
+        .stdout_only(expected_n);
+}

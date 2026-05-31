@@ -22,7 +22,7 @@ use std::io::{IsTerminal as _, Read};
 use std::path::Path;
 use uucore::error::{FromIo, UResult, USimpleError};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[doc(hidden)]
 pub enum RegexMode {
     Fixed,
