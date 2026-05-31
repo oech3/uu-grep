@@ -3,9 +3,12 @@
 // For the full copyright and license information, please view the LICENSE
 // file that was distributed with this source code.
 
-mod context_buffer;
-mod line_buffer;
-mod matcher;
+#[doc(hidden)]
+pub mod context_buffer;
+#[doc(hidden)]
+pub mod line_buffer;
+#[doc(hidden)]
+pub mod matcher;
 mod output;
 mod searcher;
 
@@ -20,7 +23,8 @@ use std::path::Path;
 use uucore::error::{FromIo, UResult, USimpleError};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum RegexMode {
+#[doc(hidden)]
+pub enum RegexMode {
     Fixed,
     Basic,
     Extended,
@@ -28,7 +32,8 @@ enum RegexMode {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum BinaryMode {
+#[doc(hidden)]
+pub enum BinaryMode {
     Binary,
     Text,
     WithoutMatch,
@@ -42,79 +47,84 @@ enum ColorMode {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum DirectoryMode {
+#[doc(hidden)]
+pub enum DirectoryMode {
     Read,
     Skip,
     Recurse,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum DeviceMode {
+#[doc(hidden)]
+pub enum DeviceMode {
     Default,
     Read,
     Skip,
 }
 
-struct ColorConfig<'a> {
-    matched_selected: &'a str,
-    matched_context: &'a str,
-    filename: &'a str,
-    line_number: &'a str,
-    byte_offset: &'a str,
-    separator: &'a str,
-    selected_line: &'a str,
-    context_line: &'a str,
+#[doc(hidden)]
+pub struct ColorConfig<'a> {
+    pub matched_selected: &'a str,
+    pub matched_context: &'a str,
+    pub filename: &'a str,
+    pub line_number: &'a str,
+    pub byte_offset: &'a str,
+    pub separator: &'a str,
+    pub selected_line: &'a str,
+    pub context_line: &'a str,
 
-    reverse_video: bool,
-    no_erase: bool,
+    pub reverse_video: bool,
+    pub no_erase: bool,
 }
 
-struct GlobSet {
+#[doc(hidden)]
+pub struct GlobSet {
     patterns: Vec<glob::Pattern>,
 }
 
-struct Config<'a> {
+#[doc(hidden)]
+pub struct Config<'a> {
     // Searcher
-    directory_mode: DirectoryMode,
-    device_mode: DeviceMode,
-    follow_symlinks: bool,
-    include_globs: GlobSet,
-    exclude_globs: GlobSet,
-    exclude_dir_globs: GlobSet,
-    label: &'a str,
+    pub directory_mode: DirectoryMode,
+    pub device_mode: DeviceMode,
+    pub follow_symlinks: bool,
+    pub include_globs: GlobSet,
+    pub exclude_globs: GlobSet,
+    pub exclude_dir_globs: GlobSet,
+    pub label: &'a str,
     #[cfg(windows)]
-    strip_cr: bool,
-    binary_mode: BinaryMode,
-    max_count: Option<u64>,
-    before_context: usize,
-    after_context: usize,
-    has_context: bool,
+    pub strip_cr: bool,
+    pub binary_mode: BinaryMode,
+    pub max_count: Option<u64>,
+    pub before_context: usize,
+    pub after_context: usize,
+    pub has_context: bool,
 
     // Matcher
-    patterns: &'a [&'a str],
-    regex_mode: RegexMode,
-    ignore_case: bool,
-    invert_match: bool,
-    word_regexp: bool,
-    line_regexp: bool,
+    pub patterns: &'a [&'a str],
+    pub regex_mode: RegexMode,
+    pub ignore_case: bool,
+    pub invert_match: bool,
+    pub word_regexp: bool,
+    pub line_regexp: bool,
 
     // Output
-    quiet: bool,
-    count: bool,
-    show_filename: bool,
-    files_with_matches: bool,
-    files_without_match: bool,
-    only_matching: bool,
-    byte_offset: bool,
-    line_number: bool,
-    initial_tab: bool,
-    null_separator: bool,
-    null_data: bool,
-    line_buffered: bool,
-    no_messages: bool,
-    group_separator: Option<&'a str>,
-    use_color: bool,
-    color_config: ColorConfig<'a>,
+    pub quiet: bool,
+    pub count: bool,
+    pub show_filename: bool,
+    pub files_with_matches: bool,
+    pub files_without_match: bool,
+    pub only_matching: bool,
+    pub byte_offset: bool,
+    pub line_number: bool,
+    pub initial_tab: bool,
+    pub null_separator: bool,
+    pub null_data: bool,
+    pub line_buffered: bool,
+    pub no_messages: bool,
+    pub group_separator: Option<&'a str>,
+    pub use_color: bool,
+    pub color_config: ColorConfig<'a>,
 }
 
 #[uucore::main(no_signals)]
@@ -855,7 +865,14 @@ fn expand_num_shorthand(args: impl Iterator<Item = OsString>) -> Vec<OsString> {
 }
 
 impl GlobSet {
-    fn with_capacity(capacity: usize) -> Self {
+    /// Create an empty GlobSet.
+    pub fn new() -> Self {
+        Self {
+            patterns: Vec::new(),
+        }
+    }
+
+    pub fn with_capacity(capacity: usize) -> Self {
         Self {
             patterns: Vec::with_capacity(capacity),
         }

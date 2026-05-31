@@ -4,6 +4,7 @@
 [![dependency status](https://deps.rs/repo/github/uutils/grep/status.svg)](https://deps.rs/repo/github/uutils/grep)
 
 [![CodeCov](https://codecov.io/gh/uutils/grep/branch/main/graph/badge.svg)](https://codecov.io/gh/uutils/grep)
+[![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/uutils/grep?utm_source=badge)
 
 # Grep, now in Rust
 
