@@ -864,6 +864,12 @@ fn expand_num_shorthand(args: impl Iterator<Item = OsString>) -> Vec<OsString> {
     out
 }
 
+impl Default for GlobSet {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GlobSet {
     /// Create an empty GlobSet.
     pub fn new() -> Self {
