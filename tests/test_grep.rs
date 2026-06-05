@@ -251,6 +251,12 @@ fn word_regexp() {
         .pipe_in("foo bar\nfoobar\n")
         .succeeds()
         .stdout_only("foo bar\n");
+
+    let (_s, mut c) = ucmd();
+    c.args(&["-w", "$"])
+        .pipe_in("abc\n\nx\n")
+        .succeeds()
+        .stdout_only("\n");
 }
 
 #[test]
@@ -260,6 +266,12 @@ fn line_regexp() {
         .pipe_in("foo bar\nfoo bar!\nx foo bar\n")
         .succeeds()
         .stdout_only("foo bar\n");
+
+    let (_s, mut c) = ucmd();
+    c.args(&["-x", "$"])
+        .pipe_in("abc\n\nx\n")
+        .succeeds()
+        .stdout_only("\n");
 }
 
 #[test]
