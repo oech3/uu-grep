@@ -86,6 +86,21 @@ fn bre_gnu_extensions() {
 }
 
 #[test]
+fn gnu_buffer_anchors() {
+    let (_s, mut c) = ucmd();
+    c.args(&[r"\`c\|r\'"])
+        .pipe_in("cat\nscat\ntar\ndog\n")
+        .succeeds()
+        .stdout_only("cat\ntar\n");
+
+    let (_s, mut c) = ucmd();
+    c.args(&["-E", r"\`c|r\'"])
+        .pipe_in("cat\nscat\ntar\ndog\n")
+        .succeeds()
+        .stdout_only("cat\ntar\n");
+}
+
+#[test]
 fn ere_metacharacters() {
     let cases: &[(&[&str], &str, &str)] = &[
         (&["-E", "Hi|HI"], "Hi\nHI\nhi\n", "Hi\nHI\n"),
