@@ -127,6 +127,24 @@ fn ere_invalid_pattern_is_error() {
 }
 
 #[test]
+fn initial_tab_skips_empty_lines() {
+    // -T aligns content with a tab, but GNU omits the tab for an empty line
+    // (a whitespace-only line still gets one). -H forces the filename prefix
+    // on, so the tab is exercised.
+    let (s, mut c) = ucmd();
+    s.fixtures.write("in", "x\n\n");
+    c.args(&["-T", "-H", "^", "in"])
+        .succeeds()
+        .stdout_is("in:\tx\nin:\n");
+
+    let (s, mut c) = ucmd();
+    s.fixtures.write("in", "x\n \n");
+    c.args(&["-T", "-H", "^", "in"])
+        .succeeds()
+        .stdout_is("in:\tx\nin:\t \n");
+}
+
+#[test]
 fn fixed_string_is_literal() {
     // Metacharacters are not interpreted.
     let (_s, mut c) = ucmd();
