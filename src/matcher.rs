@@ -28,13 +28,10 @@ impl<'a> Matcher<'a> {
     /// Decide whether `line` matches and return the positions to highlight.
     pub fn match_line(&self, line: &[u8]) -> Option<Vec<(usize, usize)>> {
         let mut any_seen = false;
+        let mut any_selected = false;
         let positions: Vec<_> = MatchIter::new(&self.patterns, line)
             .filter(|&(start, end)| {
                 any_seen = true;
-                // Drop zero-length matches from the output.
-                if start == end {
-                    return false;
-                }
                 // Drop matches that don't span the whole line if `-x` was requested.
                 if self.config.line_regexp && !(start == 0 && end == line.len()) {
                     return false;
@@ -43,13 +40,19 @@ impl<'a> Matcher<'a> {
                 if self.config.word_regexp && !Self::is_word_match(line, start, end) {
                     return false;
                 }
+                any_selected = true;
+                // Drop zero-length matches from the output.
+                if start == end {
+                    return false;
+                }
                 true
             })
             .collect();
 
         let raw_matched = if self.config.line_regexp || self.config.word_regexp {
-            // -w / -x are authoritative once positions are filtered.
-            !positions.is_empty()
+            // -w / -x are authoritative once matches are filtered. Zero-length
+            // matches can select a line even though there is no span to output.
+            any_selected
         } else {
             any_seen
         };
@@ -174,7 +177,7 @@ struct Cursor<'a> {
 
 impl Cursor<'_> {
     fn refill(&mut self) {
-        if self.offset >= self.line.len() {
+        if self.offset > self.line.len() {
             self.pending = None;
             return;
         }
