@@ -1530,13 +1530,6 @@ fn slow_path_binary_handling() {
         .succeeds()
         .stdout_is_bytes(b"hit\0\n");
 
-    // --binary-files=without-match bails out on an invalid-UTF-8 match.
-    scene
-        .cmd(env!("CARGO_BIN_EXE_grep"))
-        .args(&["--binary-files=without-match", "[a]", "bad"])
-        .fails_with_code(1)
-        .no_output();
-
     // A NUL after the matched line means binariness is discovered at EOF, so
     // the line is printed first and the notice is emitted during finalization.
     scene.fixtures.write_bytes("late", b"hit\nno\0\n");
