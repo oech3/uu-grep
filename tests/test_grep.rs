@@ -171,6 +171,34 @@ fn pcre_features() {
 }
 
 #[test]
+fn perl_regexp_rejects_multiple_patterns() {
+    // GNU grep's PCRE backend (-P) only supports a single pattern.
+    // Multiple -e patterns must produce exit 2 and the canonical error message.
+    // See: https://github.com/uutils/grep/issues/34
+
+    // Two separate -e flags.
+    let (_s, mut c) = ucmd();
+    c.args(&["-P", "-e", "foo", "-e", "bar"])
+        .pipe_in("foo\nbar\n")
+        .fails_with_code(2)
+        .stderr_contains("the -P option only supports a single pattern");
+
+    // A newline inside the pattern string is split into multiple patterns.
+    let (_s, mut c) = ucmd();
+    c.args(&["-P", "-e", "foo\nbar"])
+        .pipe_in("foo\nbar\n")
+        .fails_with_code(2)
+        .stderr_contains("the -P option only supports a single pattern");
+
+    // A single pattern with -P must still work normally.
+    let (_s, mut c) = ucmd();
+    c.args(&["-P", "-e", r"\d+"])
+        .pipe_in("abc\n42\n")
+        .succeeds()
+        .stdout_only("42\n");
+}
+
+#[test]
 fn posix_character_classes() {
     let (_s, mut c) = ucmd();
     c.args(&["-E", "[[:digit:]]+"])

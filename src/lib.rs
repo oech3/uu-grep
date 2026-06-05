@@ -255,6 +255,14 @@ pub fn uumain(args: impl uucore::Args) -> UResult<()> {
         ));
     }
 
+    // GNU grep's PCRE backend (-P) supports only a single pattern.
+    if perl_regexp && patterns.len() > 1 {
+        return Err(USimpleError::new(
+            2,
+            "the -P option only supports a single pattern".to_string(),
+        ));
+    }
+
     // Decoded options into enums
     let regex_mode = if fixed_strings {
         RegexMode::Fixed
